@@ -58,7 +58,6 @@ with contextlib.closing(wave.open(fname,'rb')) as spf:
     channels = interpret_wav(signal, nFrames, nChannels, ampWidth, True)
 
     # get window size
-    # from http://dsp.stackexchange.com/questions/9966/what-is-the-cut-off-frequency-of-a-moving-average-filter
     freqRatio = (cutOffFrequency/sampleRate)
     N = int(math.sqrt(0.196196 + freqRatio**2)/freqRatio)
 
