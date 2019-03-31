@@ -21,6 +21,46 @@ outname = 'filtered.wav'
 cutOffFrequency = 1000.0
 
 
+def fft_dis(fname):
+    sampFreq, snd = wavfile.read(fname)
+
+    snd = snd / (2.**15) #convert sound array to float pt. values
+
+    #s1 = snd[:,0] #left channel
+
+    #s2 = snd[:,1] #right channel
+
+    n = len(snd)
+    p = fft(snd) # take the fourier transform of left channel
+
+    #m = len(s2) 
+    #p2 = fft(s2) # take the fourier transform of right channel
+
+    nUniquePts = int(ceil((n+1)/2.0))
+    p = p[0:nUniquePts]
+    p = abs(p)
+
+    #mUniquePts = int(ceil((m+1)/2.0))
+    #p2 = p2[0:mUniquePts]
+    #p2 = abs(p2)
+    
+    p = p / float(n) # scale by the number of points so that
+             # the magnitude does not depend on the length 
+             # of the signal or on its sampling frequency  
+    p = p**2  # square it to get the power 
+# multiply by two (see technical document for details)
+# odd nfft excludes Nyquist point
+    if n % 2 > 0: # we've got odd number of points fft
+        p[1:len(p)] = p[1:len(p)] * 2
+    else:
+        p[1:len(p) -1] = p[1:len(p) - 1] * 2 # we've got even number of points fft
+
+    freqArray = arange(0, nUniquePts, 1.0) * (sampFreq / n);
+    plt.plot(freqArray/1000, 10*log10(p), color='k')
+    plt.xlabel('Channel_Frequency (kHz)')
+    plt.ylabel('Channel_Power (dB)')
+    plt.show()
+
 def run_mean(x, windowSize):
   cumsum = np.cumsum(np.insert(x, 0, 0)) 
   return (cumsum[windowSize:] - cumsum[:-windowSize]) / windowSize
@@ -68,3 +108,11 @@ with contextlib.closing(wave.open(fname,'rb')) as spf:
     wav_file.setparams((1, ampWidth, sampleRate, nFrames, spf.getcomptype(), spf.getcompname()))
     wav_file.writeframes(filt.tobytes('C'))
     wav_file.close()
+    
+    
+n = 0
+for n in range (0,2): 
+    if n==0:
+        fft_dis(fname)
+    elif n==1:
+        fft_dis(outname)
