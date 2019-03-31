@@ -21,7 +21,7 @@ outname = 'filtered.wav'
 cutOffFrequency = 1000.0
 
 
-def running_mean(x, windowSize):
+def run_mean(x, windowSize):
   cumsum = np.cumsum(np.insert(x, 0, 0)) 
   return (cumsum[windowSize:] - cumsum[:-windowSize]) / windowSize
 
@@ -58,13 +58,13 @@ with contextlib.closing(wave.open(fname,'rb')) as spf:
     channels = interpret_wav(signal, nFrames, nChannels, ampWidth, True)
 
     # get window size
-    freqRatio = (cutOffFrequency/sampleRate)
-    N = int(math.sqrt(0.196196 + freqRatio**2)/freqRatio)
+    fqRatio = (cutOffFrequency/sampleRate)
+    N = int(math.sqrt(0.196196 + fqRatio**2)/fqRatio)
 
     # Use moviung average (only on first channel)
-    filtered = running_mean(channels[0], N).astype(channels.dtype)
+    filt = run_mean(channels[0], N).astype(channels.dtype)
 
     wav_file = wave.open(outname, "w")
     wav_file.setparams((1, ampWidth, sampleRate, nFrames, spf.getcomptype(), spf.getcompname()))
-    wav_file.writeframes(filtered.tobytes('C'))
+    wav_file.writeframes(filt.tobytes('C'))
     wav_file.close()
